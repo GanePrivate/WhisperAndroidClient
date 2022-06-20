@@ -21,6 +21,33 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
     private val MENUID_FILE = 0     // オプションメニューID
     private lateinit var m_strInitialDir: File       // 初期フォルダ
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        //API 29 未満の場合は外部ストレージアクセスのパーミッション許可ポップアップ表示
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(
+                    this@MainActivity,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                val permissions = arrayOf(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                ActivityCompat.requestPermissions(this@MainActivity, permissions, 0)
+            }
+        }
+
+        // UPLOADボタンが押された時の処理
+        ul_button.setOnClickListener {
+            selectFile()
+        }
+    }
+
+
+    // ファイルを選択するダイアログを表示する
     fun selectFile() {
         //外部ストレージ　ルートフォルダパス取得
         var externalFilesDirs =
@@ -57,79 +84,6 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        //API 29 未満の場合は外部ストレージアクセスのパーミッション許可ポップアップ表示
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(
-                    this@MainActivity,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) !=
-                PackageManager.PERMISSION_GRANTED
-            ) {
-                val permissions = arrayOf(
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                )
-                ActivityCompat.requestPermissions(this@MainActivity, permissions, 0)
-            }
-        }
-
-        // UPLOADボタンが押された時の処理
-        ul_button.setOnClickListener {
-            selectFile()
-        }
-    }
-
-    // オプションメニュー生成時
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        super.onCreateOptionsMenu(menu)
-        menu.add(0, MENUID_FILE, 0, "ファイル選択...")
-        return true
-    }
-
-    // オプションメニュー選択時処理　本処理では、MENUID_FILE　メニューしかないが分岐処理しとく
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        //外部ストレージ　ルートフォルダパス取得
-        var externalFilesDirs =
-            this@MainActivity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path.split("/")
-        var externalFilesDirsPath = ""
-        var i = 0
-        externalFilesDirs.forEach { externalFilesDirsPeart ->
-            if (i > 3) {
-                return@forEach
-            }
-            if (externalFilesDirsPeart != "") {
-                externalFilesDirsPath = externalFilesDirsPath + "/" + externalFilesDirsPeart
-            }
-
-            i++
-        }
-
-        //外部ストレージ　ダウンロードフォルダパスを初期フォルダとして変数に保存
-        m_strInitialDir = File(externalFilesDirsPath + "/Download")
-
-        when (item.getItemId()) {
-            MENUID_FILE -> {
-                //オプションメニューで「ファイル選択...」を選択したときの処理
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                    // ファイル選択ダイアログ表示　Android 9.0　(API 28)　以下の場合の処理
-                    // アプリが minSdkVersion 26　なのでそれ以下の端末処置は考慮していない
-                    val dlg = FileSelectionDialog(this, this)
-                    dlg.show(m_strInitialDir)
-                } else {
-                    // ファイル選択Activity表示　Android 9.0　(API 28)　を超えるの場合の処理
-                    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-                    intent.type = "*/*"
-                    startActivityForResult(intent, MENUID_FILE)
-                }
-                return true
-            }
-        }
-        return false
-    }
 
     // Android 9.0　(API 28) 以下でファイルが選択されたときに呼び出される関数
     override fun onFileSelect(file: File?) {
