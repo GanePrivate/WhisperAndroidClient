@@ -6,7 +6,7 @@ import java.io.File
 import java.io.IOException
 
 
-class PostData(val fileName: String) {
+class PostData(val fileName: String, val filePath: String) {
     private val client = OkHttpClient()
 
     fun run(callback: ApiResult) {
@@ -15,8 +15,8 @@ class PostData(val fileName: String) {
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart(
-                "file", "ファイル名.png",
-                File("/storage/emulated/0/Pictures/$fileName").asRequestBody()
+                "file", fileName,
+                File(filePath).asRequestBody()
             )
             .build()
 

@@ -3,16 +3,16 @@ package com.example.fileuploadsample
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.OpenableColumns
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.fileuploadsample.UriToFileUtil.toFile
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 
@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
         } else {
             // ファイル選択Activity表示　Android 9.0　(API 28)　を超えるの場合の処理
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-            intent.type = "*/*"
+            intent.type = "image/*"
             startActivityForResult(intent, MENUID_FILE)
         }
     }
@@ -101,8 +101,12 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
         if (resultCode == RESULT_OK) {
             when (requestCode) {
                 MENUID_FILE -> {
-                    //ファイル名を取得
+                    // ファイル名を取得
                     var selectFileName = "ファイル名を取得できませんでした"
+                    // ファイルURIを取得
+                    val uri: Uri = data?.data!!
+                    // ファイルURIをファイルパスに変換
+                    val filePath: String = toFile(this, uri).path
                     data!!.data?.let { selectFileUri ->
                         contentResolver.query(selectFileUri, null, null, null, null)
                     }?.use { cursor ->
@@ -119,8 +123,8 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
                         Toast.LENGTH_LONG
                     ).show()
 
-                    // ファイル名を指定してアップロードを実行
-                    val postData = PostData(selectFileName)
+                    // ファイルパスを指定してアップロードを実行
+                    val postData = PostData(fileName=selectFileName, filePath=filePath)
                     postData.run(callback = object : ApiResult {
 
                         // アップロード完了時の処理
