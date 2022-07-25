@@ -20,12 +20,13 @@ import java.io.File
 class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListener {
     private val MENUID_FILE = 0     // オプションメニューID
     private lateinit var m_strInitialDir: File       // 初期フォルダ
+    private val PERMISSION_WRITE_EX_STR = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //API 29 未満の場合は外部ストレージアクセスのパーミッション許可ポップアップ表示
+        // Android10(API29) 未満の場合は外部ストレージアクセスのパーミッション許可ポップアップ表示
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             if (ContextCompat.checkSelfPermission(
                     this@MainActivity,
@@ -38,6 +39,34 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
                 )
                 ActivityCompat.requestPermissions(this@MainActivity, permissions, 0)
             }
+        }
+
+        if (Build.VERSION.SDK_INT in 23..29) {
+            if (ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                )
+                != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.READ_CONTACTS
+                )
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this, arrayOf(
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_CONTACTS
+                    ),
+                    PERMISSION_WRITE_EX_STR
+                )
+            }
+        }
+
+        // 権限の取得ボタンが押された時の処理
+        get_Permission_button.setOnClickListener {
+            val intent = Intent("android.settings.MANAGE_ALL_FILES_ACCESS_PERMISSION")
+            startActivity(intent)
         }
 
         // UPLOADボタンが押された時の処理
@@ -68,9 +97,8 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
         }
 
         //外部ストレージ　ダウンロードフォルダパスを初期フォルダとして変数に保存
-        m_strInitialDir = File(externalFilesDirsPath + "/Download")
+        m_strInitialDir = File(externalFilesDirsPath)
 
-        //オプションメニューで「ファイル選択...」を選択したときの処理
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             // ファイル選択ダイアログ表示　Android 9.0　(API 28)　以下の場合の処理
             // アプリが minSdkVersion 26　なのでそれ以下の端末処置は考慮していない
@@ -79,7 +107,7 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
         } else {
             // ファイル選択Activity表示　Android 9.0　(API 28)　を超えるの場合の処理
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-            intent.type = "image/*"
+            intent.type = "*/*"
             startActivityForResult(intent, MENUID_FILE)
         }
     }
@@ -92,7 +120,22 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
             "API:" + Build.VERSION.SDK_INT + " ファイルが選択されました。\n : " + file!!.getPath(),
             Toast.LENGTH_LONG
         ).show()
-        m_strInitialDir = file!!
+
+        // ファイルパスを指定してアップロードを実行
+        responseView.text = "Uploading..."
+        val postData = PostData(fileName=file.name, filePath=file.getPath())
+        postData.run(callback = object : ApiResult {
+
+            // アップロード完了時の処理
+            override fun onSuccess(res: String) {
+                responseView.text = res
+            }
+
+            // アップロード失敗時の処理
+            override fun onError(res: String?) {
+                responseView.text = res
+            }
+        })
     }
 
 
@@ -124,6 +167,7 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
                     ).show()
 
                     // ファイルパスを指定してアップロードを実行
+                    responseView.text = "Uploading..."
                     val postData = PostData(fileName=selectFileName, filePath=filePath)
                     postData.run(callback = object : ApiResult {
 
