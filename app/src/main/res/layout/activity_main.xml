@@ -31,40 +31,61 @@
             android:id="@+id/get_Permission_button"
             android:layout_width="match_parent"
             android:layout_height="64dp"
-            android:layout_marginBottom="30dp"
+            android:layout_marginBottom="20dp"
             android:backgroundTint="#2196F3"
             android:text="権限を取得"
             android:textSize="24sp" />
 
-        <Button
-            android:id="@+id/ul_button"
-            android:layout_width="match_parent"
-            android:layout_height="108dp"
-            android:layout_marginBottom="20dp"
-            android:backgroundTint="#E91E63"
-            android:text="UPLOAD!"
-            android:textSize="48sp" />
-
         <TextView
-            android:id="@+id/textView3"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_height="30dp"
             android:background="#FFFFFF"
-            android:text="レスポンス"
+            android:text="保存するフォルダ名"
             android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textSize="34sp"
-            android:textStyle="bold" />
+            android:textColor="#000000"
+            android:textSize="20sp" />
 
-        <TextView
-            android:id="@+id/responseView"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="371dp"
-            android:layout_marginBottom="28dp"
-            android:background="#D5D5D5"
-            android:text="レスポンス結果"
-            android:textColor="@color/black" />
+            android:layout_height="match_parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/folderName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="ここに入力してね" />
+
+            <Button
+                android:id="@+id/ul_button"
+                android:layout_width="match_parent"
+                android:layout_height="108dp"
+                android:layout_marginTop="20dp"
+                android:backgroundTint="#E91E63"
+                android:text="UPLOAD!"
+                android:textSize="48sp" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="#FFFFFF"
+                android:text="レスポンス"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="34sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/responseView"
+                android:layout_width="match_parent"
+                android:layout_height="301dp"
+                android:layout_marginBottom="28dp"
+                android:background="#D5D5D5"
+                android:text="レスポンス結果"
+                android:textColor="@color/black" />
+        </com.google.android.material.textfield.TextInputLayout>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

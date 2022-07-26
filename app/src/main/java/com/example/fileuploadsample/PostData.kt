@@ -6,7 +6,7 @@ import java.io.File
 import java.io.IOException
 
 
-class PostData(val fileName: String, val filePath: String) {
+class PostData(val fileName: String, val filePath: String, val folderName: String) {
     private val client = OkHttpClient()
 
     fun run(callback: ApiResult) {
@@ -14,6 +14,9 @@ class PostData(val fileName: String, val filePath: String) {
         // 送信ファイルの指定
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
+            .addFormDataPart(
+                "filePath", folderName
+            )
             .addFormDataPart(
                 "file", fileName,
                 File(filePath).asRequestBody()

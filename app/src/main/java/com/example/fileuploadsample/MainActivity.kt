@@ -123,7 +123,8 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
 
         // ファイルパスを指定してアップロードを実行
         responseView.text = "Uploading..."
-        val postData = PostData(fileName=file.name, filePath=file.getPath())
+        val folderName = folderName.text.toString()
+        val postData = PostData(fileName=file.name, filePath=file.getPath(), folderName=folderName)
         postData.run(callback = object : ApiResult {
 
             // アップロード完了時の処理
@@ -168,7 +169,8 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
 
                     // ファイルパスを指定してアップロードを実行
                     responseView.text = "Uploading..."
-                    val postData = PostData(fileName=selectFileName, filePath=filePath)
+                    val folderName = folderName.text.toString()
+                    val postData = PostData(fileName=selectFileName, filePath=filePath, folderName=folderName)
                     postData.run(callback = object : ApiResult {
 
                         // アップロード完了時の処理
