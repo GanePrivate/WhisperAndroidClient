@@ -1,12 +1,5 @@
-## アップロードしたデータのダウンロードについて
-アップロードしたファイルをPCでダウンロードする方法は，以下のドキュメントを参照してください。
-https://kjlb.esa.io/posts/3435
+# Whisper Android Client
 
-## アプリのインストール方法
-以下のURLから FileUploadSample.apk をダウンロードしてください．
-https://github.com/GanePrivate/AndroidFileUploadSample/releases
-
-## ファイルを受け取るサーバ側の実装について
-サーバ側はGoで実装してます．
-以下のリポジトリでコードを公開しています．
-https://github.com/GanePrivate/go-rest-API
+## これは何？
+梶研に建てたWhisperサーバのクライアントアプリです．
+スマホから音声ファイルを選択して文字起こしすることができます．
