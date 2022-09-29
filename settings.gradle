@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "fileUploadSample"
+rootProject.name = "WhisperAndroidClient"
 include ':app'
