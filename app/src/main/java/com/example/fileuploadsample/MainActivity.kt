@@ -8,6 +8,11 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.OpenableColumns
+import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -21,10 +26,37 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
     private val MENUID_FILE = 0     // オプションメニューID
     private lateinit var m_strInitialDir: File       // 初期フォルダ
     private val PERMISSION_WRITE_EX_STR = 1
+    private var selectedItem = ""
+
+    // モデル一覧
+    private val spinnerItems = arrayOf("tiny", "base", "small", "medium", "large")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // ArrayAdapter
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, spinnerItems)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        modelList.adapter = adapter  // spinner に adapter をセット
+        // smallのモデルをデフォルトで選択しておく
+        modelList.setSelection(2)
+
+        // リスナーを登録
+        modelList.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            //　アイテムが選択された時
+            override fun onItemSelected(parent: AdapterView<*>?,
+                                        view: View?, position: Int, id: Long) {
+                val spinnerParent = parent as Spinner
+                selectedItem = spinnerParent.selectedItem as String
+                Log.d("selectedItem", selectedItem)
+            }
+
+            //　アイテムが選択されなかった
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                //
+            }
+        }
 
         // Android10(API29) 未満の場合は外部ストレージアクセスのパーミッション許可ポップアップ表示
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
@@ -107,7 +139,7 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
         } else {
             // ファイル選択Activity表示　Android 9.0　(API 28)　を超えるの場合の処理
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-            intent.type = "*/*"
+            intent.type = "audio/*"
             startActivityForResult(intent, MENUID_FILE)
         }
     }
@@ -122,14 +154,13 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
         ).show()
 
         // ファイルパスを指定してアップロードを実行
-        responseView.text = "Uploading..."
-        val folderName = folderName.text.toString()
-        val postData = PostData(fileName=file.name, filePath=file.getPath(), folderName=folderName)
+        responseView.text = "解析中"
+        val postData = PostData(fileName=file.name, filePath=file.getPath(), modelName=selectedItem)
         postData.run(callback = object : ApiResult {
 
             // アップロード完了時の処理
             override fun onSuccess(res: String) {
-                responseView.text = res
+                responseView.text = res.substring(9, res.length-1)
             }
 
             // アップロード失敗時の処理
@@ -168,14 +199,13 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
                     ).show()
 
                     // ファイルパスを指定してアップロードを実行
-                    responseView.text = "Uploading..."
-                    val folderName = folderName.text.toString()
-                    val postData = PostData(fileName=selectFileName, filePath=filePath, folderName=folderName)
+                    responseView.text = "解析中..."
+                    val postData = PostData(fileName=selectFileName, filePath=filePath, modelName=selectedItem)
                     postData.run(callback = object : ApiResult {
 
                         // アップロード完了時の処理
                         override fun onSuccess(res: String) {
-                            responseView.text = res
+                            responseView.text = res.substring(9, res.length-1)
                         }
 
                         // アップロード失敗時の処理

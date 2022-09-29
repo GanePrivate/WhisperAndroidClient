@@ -4,9 +4,10 @@ import okhttp3.*
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 
-class PostData(val fileName: String, val filePath: String, val folderName: String) {
+class PostData(val fileName: String, val filePath: String, val modelName: String) {
     private val client = OkHttpClient()
 
     fun run(callback: ApiResult) {
@@ -15,7 +16,7 @@ class PostData(val fileName: String, val filePath: String, val folderName: Strin
         val requestBody = MultipartBody.Builder()
             .setType(MultipartBody.FORM)
             .addFormDataPart(
-                "filePath", folderName
+                "model_name", modelName
             )
             .addFormDataPart(
                 "file", fileName,
@@ -24,8 +25,14 @@ class PostData(val fileName: String, val filePath: String, val folderName: Strin
             .build()
 
         // リクエストの作成
+        val client: OkHttpClient = OkHttpClient.Builder()
+            .connectTimeout(0, TimeUnit.SECONDS)
+            .readTimeout(0, TimeUnit.SECONDS)
+            .writeTimeout(0, TimeUnit.SECONDS)
+            .build()
+
         val request = Request.Builder()
-            .url("https://webdav-api.kajilab.tk/api/v1/files/")
+            .url("https://whisper-gpu.kajilab.tk/upload/")
             .post(requestBody)
             .build()
 
