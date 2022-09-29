@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.OpenableColumns
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
@@ -34,6 +35,11 @@ class MainActivity : AppCompatActivity(), FileSelectionDialog.OnFileSelectListen
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // テキストビューをスクロールできるようにする
+        responseView.movementMethod = ScrollingMovementMethod()
+        // Text Selection をenableにする
+        responseView.setTextIsSelectable(true);
 
         // ArrayAdapter
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, spinnerItems)
